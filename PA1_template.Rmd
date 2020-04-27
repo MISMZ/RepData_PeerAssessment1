@@ -33,7 +33,7 @@ summary(data)
 
 2.1 Calculate the total number of steps taken per day
 ```{r}
-StepsPerDay <- data %>% group_by(date) %>% summarise(Total_Steps = sum(steps))
+StepsPerDay <- data %>% group_by(date) %>% summarise(Total_Steps = sum(steps, na.rm = TRUE))
 
 ```
 
