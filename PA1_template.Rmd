@@ -56,7 +56,7 @@ plot1 + geom_histogram(boundary=0, binwidth=2200, col="darkblue", fill="lightblu
 ```{r}
 summary(StepsPerDay)
 ```
-The mean is 10766 and the median is 10765
+The mean is 9354 and the median is 10395
 
 ## 4. Time series plot of the average number of steps taken
 
