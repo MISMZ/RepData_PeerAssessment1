@@ -1,25 +1,132 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproduvible Research - Course Project 1"
+author: "Mohd Irwan Sophan Bin Mohd Zahir"
+date: "27/04/2020"
+output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-## Loading and preprocessing the data
+## 1. Code for reading in the dataset and/or processing the data
+
+```{r}
+# Set Working Directory
+setwd("D:/Users/bkirwan/Desktop/Reproducible Research/RepData_PeerAssessment1")
+
+# Import Library/Package
+
+library(tidyverse)
+
+# Load data
+data <- read_csv("activity.csv")
+
+# Inspect data structure
+str(data)
+
+# Data Statistics
+summary(data)
+```
+
+## 2. Histogram of the total number of steps taken each day
+
+2.1 Calculate the total number of steps taken per day
+```{r}
+StepsPerDay <- data %>% group_by(date) %>% summarise(Total_Steps = sum(steps))
+
+```
+
+2.2 Make a histogram of the total number of steps taken each day
+
+```{r}
+plot1 <- ggplot(StepsPerDay, aes(Total_Steps))
+
+plot1 + geom_histogram(boundary=0, binwidth=2200, col="darkblue", fill="lightblue") + 
+        ggtitle("Chart 1 : Histogram of Steps per Day") + xlab("Steps") + ylab("Frequency") + 
+        theme(plot.title = element_text(face="bold", size=12)) + 
+        scale_x_continuous(breaks=seq(0,22000,2000)) + 
+        scale_y_continuous(breaks=seq(0,18,2))
+```
+
+## 3. Mean and median number of steps taken each day
+
+3.1 Calculate and report the mean and median of the total number of steps taken per day
+
+```{r}
+summary(StepsPerDay)
+```
+The mean is 10766 and the median is 10765
+
+## 4. Time series plot of the average number of steps taken
+
+```{r}
+StepsPerInterval <- data %>% group_by(interval) %>% summarise(Average_Steps = mean(steps, na.rm = TRUE))
+
+plot2 <- ggplot(StepsPerInterval, aes(interval, Average_Steps))
+
+plot2 + geom_line(col="red") +
+        ggtitle("Average Steps per Time Interval") +
+        xlab("Time") +
+        ylab("Steps")
+```
+
+## 5. The 5-minute interval that, on average, contains the maximum number of steps
+```{r}
+StepsPerInterval %>% filter(Average_Steps==max(Average_Steps))
+```
+At interval 835 contain the maximum number of steps.
+
+## 6. Code to describe and show a strategy for imputing missing data
+
+```{r}
+# Total number of missing values in the dataset
+data2 <- data
+
+data2 %>% filter(is.na(steps)) %>% summarize(missing_values = n())
+
+# Replace missing values
+data2$Complete_Steps <- ifelse(is.na(data2$steps), round(StepsPerInterval$Average_Steps[match(data2$interval, StepsPerInterval$interval)],0), data2$steps)
+
+data2 %>% filter(is.na(Complete_Steps)) %>% summarize(missing_values = n())
+
+# New Dataset
+to_drop <- "steps"
+
+new_dataset <- data2 %>% select(-one_of(to_drop)) %>% rename(steps = Complete_Steps)
+```
+
+## 7. Histogram of the total number of steps taken each day after missing values are imputed
+```{r}
+StepsPerDay2 <- new_dataset %>% group_by(date) %>% summarise(Total_Steps = sum(steps))
+
+plot3 <- ggplot(StepsPerDay2, aes(Total_Steps))
+
+plot3 + geom_histogram(boundary=0, binwidth=2200, col="darkblue", fill="lightblue") + 
+  ggtitle("Chart 3 : Histogram of Steps per Day") + xlab("Steps") + ylab("Frequency") + 
+  theme(plot.title = element_text(face="bold", size=12)) + 
+  scale_x_continuous(breaks=seq(0,22000,2000)) + 
+  scale_y_continuous(breaks=seq(0,18,2))
+```
+
+## 8. Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+```{r}
+new_dataset2 <- new_dataset %>% mutate(weekday = weekdays(date))
+new_dataset2$check_weekend <- "weekday"
+new_dataset2$check_weekend[new_dataset2$weekday == "Sunday" | new_dataset2$weekday == "Saturday"] <- "weekend"
+
+StepsPerInterval2 <- new_dataset2 %>% group_by(interval, check_weekend) %>% summarise(Average_Steps = mean(steps, na.rm = TRUE))
+
+plot4 <- ggplot(StepsPerInterval2, aes(interval, Average_Steps))
+
+plot4 + geom_line(col="red") +
+        ggtitle("Average Steps per Time Interval") +
+        xlab("Time") +
+        ylab("Steps") +
+        facet_grid(check_weekend ~ .)
+
+
+```
 
 
 
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
