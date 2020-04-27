@@ -1,5 +1,5 @@
 ---
-title: "Reproduvible Research - Course Project 1"
+title: "Reproducible Research - Course Project 1"
 author: "Mohd Irwan Sophan Bin Mohd Zahir"
 date: "27/04/2020"
 output: html_document
